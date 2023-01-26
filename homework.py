@@ -27,31 +27,22 @@ M_IN_KM = 1000
 class InfoMessage:
     """Информационное сообщение о тренировке."""
 
-    """
-    Это самостоятельный класс для создания объектов сообщений. У этого класса
-    должен быть метод для вывода сообщений на экран.
+    def __init__(self,
+                 training_type: str,
+                 training_obj):
+        self.training_type = training_type  # Name your training_obj
+        self.duration = training_obj.duration  # hours
+        self.distance = training_obj.get_distance()
+        self.speed = training_obj.get_mean_speed()
+        self.calories = training_obj.get_spent_calories()
 
-    Объекты этого класса создаются вызовом метода show_training_info() для
-    классов тренировок.
-    Свойства класса InfoMessage:
-
-    training_type — имя класса тренировки;
-    duration — длительность тренировки в часах;
-    distance — дистанция в километрах, которую преодолел пользователь за время
-    тренировки;
-    speed — средняя скорость, с которой двигался пользователь;
-    calories — количество килокалорий, которое израсходовал пользователь за
-    время тренировки.
-
-    У класса InfoMessage должен быть метод get_message(), который возвращает
-    строку сообщения:
-
-    Тип тренировки: {training_type}; Длительность: {duration} ч.; Дистанция:
-     {distance} км; Ср. скорость: {speed} км/ч; Потрачено ккал: {calories}.
-
-    ❗ Числовые значения при выводе должны быть отформатированы до тысячных
-    долей (до третьего знака после запятой).
-    """
+    def get_message(self) -> str:
+        """Return a string of the given type."""
+        return (f'Тип тренировки: {self.training_type};'
+                f' Длительность: {"{:.3f}".format(self.duration)} ч.;'
+                f' Дистанция: {"{:.3f}".format(self.distance)} км;'
+                f' Ср. скорость: {"{:.3f}".format(self.speed)} км/ч;'
+                f' Потрачено ккал: {"{:.3f}".format(self.calories)}.')
 
 
 class Training:
@@ -60,7 +51,7 @@ class Training:
 
     def __init__(self,
                  action: int,
-                 duration: float,  # minutes
+                 duration: float,  # hours
                  weight: float,  # kilos
                  ) -> None:
         self.action = action
@@ -81,10 +72,7 @@ class Training:
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
-
-        """
-        Метод возвращает объект класса сообщения.
-        """
+        return InfoMessage('My training', self)
 
 
 """
