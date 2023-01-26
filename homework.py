@@ -87,7 +87,7 @@ class Training:
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
-        return InfoMessage('My training', self)
+        return InfoMessage(self.__class__.__name__, self)
 
 
 class Running(Training):
@@ -196,24 +196,15 @@ def read_package(workout_type: str, data: list) -> Training:
 
     if workout_type in trainings_dict:
         return trainings_dict[workout_type](*data)
-    return Swimming(*data)
+    print(f'Выбран неподдерживаемый режим тренировки {workout_type}.'
+          ' По умолчанию выводятся дежурные данные.')
+    return Training(0, 1 / 3600, 0)  # To negotialte the division by zero error
 
 
 def main(training: Training) -> None:
     """Главная функция."""
-
-    """
-    Функция main() должна принимать на вход экземпляр класса Training.
-
-    При выполнении функции main() для этого экземпляра должен быть вызван
-    метод show_training_info(); результатом выполнения метода должен быть
-    объект класса InfoMessage, его нужно сохранить в переменную info.
-    Для объекта InfoMessage, сохранённого в переменной info, должен быть
-    вызван метод, который вернёт строку сообщения с данными о тренировке;
-    эту строку нужно передать в функцию print().
-
-    Задача описана, можно приступать к её выполнению. Удачи!
-    """
+    info = training.show_training_info()
+    print(info.get_message())
 
 
 if __name__ == '__main__':
@@ -279,5 +270,4 @@ if __name__ == '__main__':
 
     for workout_type, data in packages:
         training = read_package(workout_type, data)
-        # main(training)
-    # swimming = Swimming(720, 1, 80, 25, 40)
+        main(training)
