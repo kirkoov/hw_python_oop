@@ -17,8 +17,6 @@
     расход энергии в килокалориях.
 """
 
-M_IN_KM = 1000
-
 
 class InfoMessage:
     """Информационное сообщение о тренировке."""
@@ -58,6 +56,8 @@ class InfoMessage:
 
 class Training:
     """Базовый класс тренировки."""
+    M_IN_KM = 1000
+    HRS_TO_MIN = 60
     LEN_STEP = 0.65  # metres, for both walking & running except swimming
 
     def __init__(self,
@@ -71,7 +71,7 @@ class Training:
 
     def get_distance(self) -> float:
         """Получить дистанцию в км."""
-        return self.action * self.LEN_STEP / M_IN_KM
+        return self.action * self.LEN_STEP / self.M_IN_KM
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
@@ -113,8 +113,8 @@ class Running(Training):
         return (
             (self.CALORIES_MEAN_SPEED_MULTIPLIER
              * self.get_mean_speed() + self.CALORIES_MEAN_SPEED_SHIFT)
-            * self.weight / M_IN_KM
-            * self.duration * 60
+            * self.weight / self.M_IN_KM
+            * self.duration * self.HRS_TO_MIN
         )
 
 
@@ -128,26 +128,32 @@ class SportsWalking(Training):
     (0.035 * вес + (средняя_скорость_в_метрах_в_секунду**2 / рост_в_метрах)
     * 0.029 * вес) * время_тренировки_в_минутах
     m/s = km/h ÷ 3.6
+    У класса должна быть константа для перевода из км/ч в м/с со значением
+    `0.278`.
+    У класса должна быть константа для перевода значений из сантиметров в
+    метры со значением `100`.
     """
 
     WEIGHT_MULTIPLIER_ONE = 0.035
     WEIGHT_MULTIPLIER_TWO = 0.029
-    MEAN_SPEED_DIV = 3.6
+    KMH_TO_MPS = 0.278
+    CM_TO_M = 100
 
     def __init__(self,
                  action: int,
                  duration: float,  # hours
                  weight: float,  # kilos
-                 height) -> None:
+                 height: float) -> None:
         super().__init__(action, duration, weight)
-        self.height = height  # The athlete's height in metres
+        self.height = height * self.CM_TO_M  # The athlete's height in metres
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
         return (
             (self.WEIGHT_MULTIPLIER_ONE * self.weight
-             + ((self.get_mean_speed() / self.MEAN_SPEED_DIV)**2 / self.height)
-             * self.WEIGHT_MULTIPLIER_TWO * self.weight) * self.duration * 60
+             + ((self.get_mean_speed() / self.KMH_TO_MPS)**2 / self.height)
+             * self.WEIGHT_MULTIPLIER_TWO * self.weight) * self.duration
+            * self.HRS_TO_MIN
         )
 
 
@@ -169,7 +175,7 @@ class Swimming(Training):
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
-        return (self.length_pool * self.count_pool / M_IN_KM
+        return (self.length_pool * self.count_pool / self.M_IN_KM
                 / self.duration)
 
     def get_spent_calories(self) -> float:
