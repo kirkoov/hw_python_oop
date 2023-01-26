@@ -96,9 +96,12 @@ class Running(Training):
     CALORIES_MEAN_SPEED_MULTIPLIER = 18
     CALORIES_MEAN_SPEED_SHIFT = 1.79
 
-    def __init__(self) -> None:
-        super().__init__()  # type: ignore[call-arg]
-
+    def __init__(self,
+                 action: int,
+                 duration: float,  # hours
+                 weight: float,  # kilos
+                 ) -> None:
+        super().__init__(action, duration, weight)
     """
     Все свойства и методы этого класса без изменений наследуются от базового
     класса. Исключение составляет только метод расчёта калорий, его нужно
@@ -135,8 +138,12 @@ class SportsWalking(Training):
     WEIGHT_MULTIPLIER_TWO = 0.029
     MEAN_SPEED_DIV = 3.6
 
-    def __init__(self, height: float) -> None:
-        super().__init__()  # type: ignore[call-arg]
+    def __init__(self,
+                 action: int,
+                 duration: float,  # hours
+                 weight: float,  # kilos
+                 height) -> None:
+        super().__init__(action, duration, weight)
         self.height = height  # The athlete's height in metres
 
     def get_spent_calories(self) -> float:
@@ -154,10 +161,14 @@ class Swimming(Training):
     SWIM_CALORIES_ADD = 1.1
     SWIM_CALORIES_MULTIPLIER = 2
 
-    def __init__(self, length_pool: float, count_pool: int) -> None:
-        super().__init__()  # type: ignore[call-arg]
-        self.length_pool = length_pool  # metres
-        self.count_pool = count_pool  # int
+    def __init__(self,
+                 action: int,
+                 duration: float,  # hours
+                 weight: float,  # kilos
+                 *args) -> None:
+        super().__init__(action, duration, weight)
+        self.length_pool = args[0]  # metres
+        self.count_pool = args[1]  # int
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
@@ -174,7 +185,18 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные, полученные от датчиков."""
-    pass
+
+    # Add a helper dictionary.
+    # (, 'WLK', 'SWM'
+    trainings_dict = {
+        'RUN': Running,
+        'WLK': SportsWalking,
+        'SWM': Swimming
+    }
+
+    if workout_type in trainings_dict:
+        return trainings_dict[workout_type](*data)
+    return Swimming(*data)
 
 
 def main(training: Training) -> None:
@@ -247,18 +269,6 @@ if __name__ == '__main__':
     Программа должна перебирать в цикле список пакетов, распаковывает каждый
     кортеж и передаёт данные в функцию read_package().
 
-    Функция чтения принятых пакетов read_package()
-    Функция read_package() должна определить тип тренировки и создать объект
-    соответствующего класса, передав ему на вход параметры, полученные во
-    втором аргументе. Этот объект функция должна вернуть.
-    Функция read_package() должна принимать на вход код тренировки и список её
-    параметров.
-
-    read_package(workout_type, data)
-
-    В теле функции (или рядом с ней) должен быть словарь, в котором
-    сопоставляются коды тренировок и классы, какие нужно вызвать для каждого
-    типа тренировки.
     """
 
     packages = [
@@ -269,4 +279,5 @@ if __name__ == '__main__':
 
     for workout_type, data in packages:
         training = read_package(workout_type, data)
-        main(training)
+        # main(training)
+    # swimming = Swimming(720, 1, 80, 25, 40)
