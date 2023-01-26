@@ -1,3 +1,7 @@
+tests
+/tests
+__pycache__
+
 # pyenv
 .python-version
 
