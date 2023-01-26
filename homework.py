@@ -27,6 +27,21 @@ M_IN_KM = 1000
 class InfoMessage:
     """Информационное сообщение о тренировке."""
 
+    """
+    ревьюер написал использовать dataclasses и метод asdict() в классе
+    InfoMessage. Он советует вынести строку, которую возвращает метод
+    get_message() в константы в сам класс, а потом использовать на ней метод
+    format, передав в качестве параметра распакованный словарь (**asdict).
+    Логика заключается в том, чтобы метод get_message() был максимально
+    универсальным (т.е. мы можем менять строку сообщения, а метод при этом
+    переписывать не придется). Если я создаю переменную message внутри метода
+    get_message(), то все работает. Но если выношу ее в класс
+    (MESSAGE на скрине), то программа не распознает переменные
+    training_type, duration и т.д. (с self то же самое).
+    Я правильно поняла ревьюера, что константу нужно вынести в класс?
+    А метод format уже использовать в get_message()?
+    """
+
     def __init__(self,
                  training_type: str,
                  training_obj):
@@ -75,26 +90,14 @@ class Training:
         return InfoMessage('My training', self)
 
 
-"""
-Методы классов, которые отвечают за обработку данных:
-
-    расчёт дистанции, которую пользователь преодолел за тренировку:
-    get_distance();
-    расчёт средней скорости движения во время тренировки: get_mean_speed();
-    расчёт количества калорий, израсходованных за тренировку:
-    get_spent_calories();
-    создание объекта сообщения о результатах тренировки: show_training_info().
-"""
-
-
 class Running(Training):
     """Тренировка: бег."""
 
     CALORIES_MEAN_SPEED_MULTIPLIER = 18
     CALORIES_MEAN_SPEED_SHIFT = 1.79
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self) -> None:
+        super().__init__()  # type: ignore[call-arg]
 
     """
     Все свойства и методы этого класса без изменений наследуются от базового
@@ -132,8 +135,8 @@ class SportsWalking(Training):
     WEIGHT_MULTIPLIER_TWO = 0.029
     MEAN_SPEED_DIV = 3.6
 
-    def __init__(self, height):
-        super().__init__()
+    def __init__(self, height: float) -> None:
+        super().__init__()  # type: ignore[call-arg]
         self.height = height  # The athlete's height in metres
 
     def get_spent_calories(self) -> float:
@@ -148,37 +151,25 @@ class SportsWalking(Training):
 class Swimming(Training):
     """Тренировка: плавание."""
     LEN_STEP = 1.38  # metres, overridden for swimming vs walking & running
+    SWIM_CALORIES_ADD = 1.1
+    SWIM_CALORIES_MULTIPLIER = 2
 
-    """
-    Конструктор класса Swimming, кроме свойств базового класса, принимает ещё
-    два параметра:
+    def __init__(self, length_pool: float, count_pool: int) -> None:
+        super().__init__()  # type: ignore[call-arg]
+        self.length_pool = length_pool  # metres
+        self.count_pool = count_pool  # int
 
-    length_pool — длина бассейна в метрах;
-    count_pool — сколько раз пользователь переплыл бассейн.
+    def get_mean_speed(self) -> float:
+        """Получить среднюю скорость движения."""
+        return (self.length_pool * self.count_pool / M_IN_KM
+                / self.duration)
 
-    В классе Swimming нужно переопределить не только метод расчёта калорий
-    get_spent_calories(), но и метод get_mean_speed(), который рассчитывает
-    среднюю скорость.
-    Формула расчёта средней скорости при плавании:
-
-    длина_бассейна * count_pool / M_IN_KM / время_тренировки
-
-    Формула для расчёта израсходованных калорий:
-
-    (средняя_скорость + 1.1) * 2 * вес * время_тренировки
-
-    Есть и ещё один параметр, который надо переопределить, ведь расстояние,
-    преодолеваемое за один гребок, отличается от длины шага. Значит,
-    необходимо переопределить атрибут LEN_STEP базового класса.
-    """
-
-    """
-    Метод get_spent_calories(self) -> float:
-    возвращает количество килокалорий, израсходованных за время
-    тренировки. Логика подсчёта калорий для каждого вида тренировки будет
-    своя, поэтому в базовом классе не нужно описывать поведение метода, в
-    его теле останется ключевое слово pass.
-    """
+    def get_spent_calories(self) -> float:
+        """Получить количество затраченных калорий."""
+        return (
+            (self.get_mean_speed() + self.SWIM_CALORIES_ADD)
+            * self.SWIM_CALORIES_MULTIPLIER * self.weight * self.duration
+        )
 
 
 def read_package(workout_type: str, data: list) -> Training:
