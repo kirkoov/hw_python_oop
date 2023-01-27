@@ -26,16 +26,16 @@ class InfoMessage:
     distance: float
     speed: float
     calories: float
-    template_str: str = ('Тип тренировки: {training_type}; '
-                         'Длительность: {duration:.3f} ч.; '
-                         'Дистанция: {distance:.3f} км; '
-                         'Ср. скорость: {speed:.3f} км/ч; '
-                         'Потрачено ккал: {calories:.3f}.'
-                         )
+    MESSAGE: str = ('Тип тренировки: {training_type}; '
+                    'Длительность: {duration:.3f} ч.; '
+                    'Дистанция: {distance:.3f} км; '
+                    'Ср. скорость: {speed:.3f} км/ч; '
+                    'Потрачено ккал: {calories:.3f}.'
+                    )
 
     def get_message(self) -> str:
         """Return a string of the given type."""
-        return self.template_str.format(**asdict(self))
+        return self.MESSAGE.format(**asdict(self))
 
 
 class Training:
