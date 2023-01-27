@@ -125,13 +125,9 @@ class SportsWalking(Training):
     спортсмена.
     Расчёт калорий для этого класса должен проводиться по такой формуле:
 
-    (0.035 * вес + (средняя_скорость_в_метрах_в_секунду**2 / рост_в_метрах)
-    * 0.029 * вес) * время_тренировки_в_минутах
-    m/s = km/h ÷ 3.6
-    У класса должна быть константа для перевода из км/ч в м/с со значением
-    `0.278`.
-    У класса должна быть константа для перевода значений из сантиметров в
-    метры со значением `100`.
+    ((0.035 * вес + (средняя_скорость_в_метрах_в_секунду**2 / рост_в_метрах)
+    * 0.029 * вес) * время_тренировки_в_минутах)
+
     """
 
     WEIGHT_MULTIPLIER_ONE = 0.035
@@ -145,16 +141,16 @@ class SportsWalking(Training):
                  weight: float,  # kilos
                  height: float) -> None:
         super().__init__(action, duration, weight)
-        self.height = height * self.CM_TO_M  # The athlete's height in metres
+        self.height = height / self.CM_TO_M  # The athlete's height in metres
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
+        inter = ((self.get_mean_speed() * self.KMH_TO_MPS)**2 / self.height)
+
         return (
             (self.WEIGHT_MULTIPLIER_ONE * self.weight
-             + ((self.get_mean_speed() / self.KMH_TO_MPS)**2 / self.height)
-             * self.WEIGHT_MULTIPLIER_TWO * self.weight) * self.duration
-            * self.HRS_TO_MIN
-        )
+                + inter * self.WEIGHT_MULTIPLIER_TWO * self.weight)
+            * self.duration * self.HRS_TO_MIN)
 
 
 class Swimming(Training):
