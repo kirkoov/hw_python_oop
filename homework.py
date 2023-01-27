@@ -2,63 +2,47 @@
 Программный модуль фитнес-трекера, который обрабатывает данные для
 трёх видов тренировок: бега, спортивной ходьбы и плавания.
 Этот модуль должен выполнять следующие функции:
-
     принимать от блока датчиков информацию о прошедшей тренировке,
     определять вид тренировки,
     рассчитывать результаты тренировки,
     выводить информационное сообщение о результатах тренировки.
 
 Информационное сообщение должно включать такие данные:
-
     тип тренировки (бег, ходьба или плавание);
     длительность тренировки в мин?;
     дистанция, которую преодолел пользователь, в километрах;
     среднюю скорость на дистанции в км/ч;
     расход энергии в килокалориях.
 """
+from dataclasses import dataclass, asdict
 
 
+@dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
 
-    """
-    ревьюер написал использовать dataclasses и метод asdict() в классе
-    InfoMessage. Он советует вынести строку, которую возвращает метод
-    get_message() в константы в сам класс, а потом использовать на ней метод
-    format, передав в качестве параметра распакованный словарь (**asdict).
-    Логика заключается в том, чтобы метод get_message() был максимально
-    универсальным (т.е. мы можем менять строку сообщения, а метод при этом
-    переписывать не придется). Если я создаю переменную message внутри метода
-    get_message(), то все работает. Но если выношу ее в класс
-    (MESSAGE на скрине), то программа не распознает переменные
-    training_type, duration и т.д. (с self то же самое).
-    Я правильно поняла ревьюера, что константу нужно вынести в класс?
-    А метод format уже использовать в get_message()?
-    """
-
-    def __init__(self,
-                 training_type: str,
-                 training_obj):
-        self.training_type = training_type  # Name your training
-        self.duration = training_obj.duration  # hours
-        self.distance = training_obj.get_distance()
-        self.speed = training_obj.get_mean_speed()
-        self.calories = training_obj.get_spent_calories()
+    training_type: str  # имя класса тренировки;
+    duration: float  # длительность тренировки в часах;
+    distance: float  # дистанция в км за время тренировки;
+    speed: float  # средняя скорость, с которой двигался пользователь;
+    calories: float  # кол-во ккалорий, израсходованное за время тренировки.
+    template_str: str = ('Тип тренировки: {training_type}; '
+                         'Длительность: {duration:.3f} ч.; '
+                         'Дистанция: {distance:.3f} км; '
+                         'Ср. скорость: {speed:.3f} км/ч; '
+                         'Потрачено ккал: {calories:.3f}.'
+                         )
 
     def get_message(self) -> str:
         """Return a string of the given type."""
-        return (f'Тип тренировки: {self.training_type};'
-                f' Длительность: {"{:.3f}".format(self.duration)} ч.;'
-                f' Дистанция: {"{:.3f}".format(self.distance)} км;'
-                f' Ср. скорость: {"{:.3f}".format(self.speed)} км/ч;'
-                f' Потрачено ккал: {"{:.3f}".format(self.calories)}.')
+        return self.template_str.format(**asdict(self))
 
 
 class Training:
     """Базовый класс тренировки."""
-    M_IN_KM = 1000
-    HRS_TO_MIN = 60
-    LEN_STEP = 0.65  # metres, for both walking & running except swimming
+    M_IN_KM: int = 1000
+    HRS_TO_MIN: int = 60
+    LEN_STEP: float = 0.65  # metres (walking & running), swimming differs
 
     def __init__(self,
                  action: int,
@@ -83,14 +67,18 @@ class Training:
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
-        return InfoMessage(self.__class__.__name__, self)
+        return InfoMessage(self.__class__.__name__,
+                           self.duration,
+                           self.get_distance(),
+                           self.get_mean_speed(),
+                           self.get_spent_calories())
 
 
 class Running(Training):
     """Тренировка: бег."""
 
-    CALORIES_MEAN_SPEED_MULTIPLIER = 18
-    CALORIES_MEAN_SPEED_SHIFT = 1.79
+    CALORIES_MEAN_SPEED_MULTIPLIER: int = 18
+    CALORIES_MEAN_SPEED_SHIFT: float = 1.79
 
     def __init__(self,
                  action: int,
@@ -130,10 +118,10 @@ class SportsWalking(Training):
 
     """
 
-    WEIGHT_MULTIPLIER_ONE = 0.035
-    WEIGHT_MULTIPLIER_TWO = 0.029
-    KMH_TO_MPS = 0.278
-    CM_TO_M = 100
+    WEIGHT_MULTIPLIER_ONE: float = 0.035
+    WEIGHT_MULTIPLIER_TWO: float = 0.029
+    KMH_TO_MPS: float = 0.278
+    CM_TO_M: int = 100
 
     def __init__(self,
                  action: int,
@@ -155,9 +143,9 @@ class SportsWalking(Training):
 
 class Swimming(Training):
     """Тренировка: плавание."""
-    LEN_STEP = 1.38  # metres, overridden for swimming vs walking & running
-    SWIM_CALORIES_ADD = 1.1
-    SWIM_CALORIES_MULTIPLIER = 2
+    LEN_STEP: float = 1.38  # metres, unlike in walking & running
+    SWIM_CALORIES_ADD: float = 1.1
+    SWIM_CALORIES_MULTIPLIER: int = 2
 
     def __init__(self,
                  action: int,
