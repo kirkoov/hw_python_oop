@@ -1,13 +1,20 @@
-tests
-/tests
-__pycache__
+__pycache__/
+*.py[cod]
+
+*.sublime-project
+*.sublime-workspace 
+
 
 # pyenv
 .python-version
 
 # Environments
+.git/*
 .env
 .venv
+env/
+venv/
+
 
 
 # mypy
@@ -15,12 +22,6 @@ __pycache__
 .dmypy.json
 dmypy.json
 
-
-# Папки, создаваемые средой разработки
-.idea
-.DS_Store
-.AppleDouble
-.LSOverride
 
 *.sublime-project
 *.sublime-workspace
