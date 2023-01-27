@@ -75,7 +75,15 @@ class Training:
 
 
 class Running(Training):
-    """Тренировка: бег."""
+    """Тренировка: бег.
+    Все свойства и методы этого класса без изменений наследуются от базового
+    класса. Исключение составляет только метод расчёта калорий, его нужно
+    переопределить.
+    Расход калорий для бега рассчитывается по такой формуле:
+
+    (18 * средняя_скорость + 1.79) * вес_спортсмена / M_IN_KM *
+    время_тренировки_в_минутах  # Yet the inherited duration is hours!
+    """
 
     CALORIES_MEAN_SPEED_MULTIPLIER: int = 18
     CALORIES_MEAN_SPEED_SHIFT: float = 1.79
@@ -86,15 +94,6 @@ class Running(Training):
                  weight: float,
                  ) -> None:
         super().__init__(action, duration, weight)
-    """
-    Все свойства и методы этого класса без изменений наследуются от базового
-    класса. Исключение составляет только метод расчёта калорий, его нужно
-    переопределить.
-    Расход калорий для бега рассчитывается по такой формуле:
-
-    (18 * средняя_скорость + 1.79) * вес_спортсмена / M_IN_KM *
-    время_тренировки_в_минутах  # Yet the inherited duration is hours!
-    """
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -133,11 +132,10 @@ class SportsWalking(Training):
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        inter = ((self.get_mean_speed() * self.KMH_TO_MPS)**2 / self.height)
-
         return (
             (self.WEIGHT_MULTIPLIER_ONE * self.weight
-                + inter * self.WEIGHT_MULTIPLIER_TWO * self.weight)
+                + ((self.get_mean_speed() * self.KMH_TO_MPS)**2 / self.height)
+                * self.WEIGHT_MULTIPLIER_TWO * self.weight)
             * self.duration * self.HRS_TO_MIN)
 
 
@@ -170,22 +168,20 @@ class Swimming(Training):
         )
 
 
-def read_package(workout_type: str, data: list) -> Training:
+def read_package(workout_type: str, data: list[int]) -> Training:
     """Прочитать данные, полученные от датчиков."""
 
-    # Add a helper dictionary.
-    # (, 'WLK', 'SWM'
-    trainings_dict = {
+    avail_workouts: dict = {
         'RUN': Running,
         'WLK': SportsWalking,
-        'SWM': Swimming
+        'SWM': Swimming,
     }
 
-    if workout_type in trainings_dict:
-        return trainings_dict[workout_type](*data)
-    print(f'Выбран неподдерживаемый режим тренировки {workout_type}.'
-          ' По умолчанию выводятся дежурные данные.')
-    return Training(0, 1 / 3600, 0)  # To negotialte the division by zero error
+    try:
+        return avail_workouts[workout_type](*data)
+    except KeyError:
+        raise NotImplementedError('Выбран неподдерживаемый режим тренировки'
+                                  f'{workout_type}')
 
 
 def main(training: Training) -> None:
