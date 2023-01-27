@@ -21,11 +21,11 @@ from dataclasses import dataclass, asdict
 class InfoMessage:
     """Информационное сообщение о тренировке."""
 
-    training_type: str  # имя класса тренировки;
-    duration: float  # длительность тренировки в часах;
-    distance: float  # дистанция в км за время тренировки;
-    speed: float  # средняя скорость, с которой двигался пользователь;
-    calories: float  # кол-во ккалорий, израсходованное за время тренировки.
+    training_type: str
+    duration: float
+    distance: float
+    speed: float
+    calories: float
     template_str: str = ('Тип тренировки: {training_type}; '
                          'Длительность: {duration:.3f} ч.; '
                          'Дистанция: {distance:.3f} км; '
@@ -42,7 +42,7 @@ class Training:
     """Базовый класс тренировки."""
     M_IN_KM: int = 1000
     HRS_TO_MIN: int = 60
-    LEN_STEP: float = 0.65  # metres (walking & running), swimming differs
+    LEN_STEP: float = 0.65
 
     def __init__(self,
                  action: int,
@@ -82,8 +82,8 @@ class Running(Training):
 
     def __init__(self,
                  action: int,
-                 duration: float,  # hours
-                 weight: float,  # kilos
+                 duration: float,
+                 weight: float,
                  ) -> None:
         super().__init__(action, duration, weight)
     """
@@ -125,11 +125,11 @@ class SportsWalking(Training):
 
     def __init__(self,
                  action: int,
-                 duration: float,  # hours
-                 weight: float,  # kilos
+                 duration: float,
+                 weight: float,
                  height: float) -> None:
         super().__init__(action, duration, weight)
-        self.height = height / self.CM_TO_M  # The athlete's height in metres
+        self.height = height / self.CM_TO_M
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -143,19 +143,19 @@ class SportsWalking(Training):
 
 class Swimming(Training):
     """Тренировка: плавание."""
-    LEN_STEP: float = 1.38  # metres, unlike in walking & running
+    LEN_STEP: float = 1.38
     SWIM_CALORIES_ADD: float = 1.1
     SWIM_CALORIES_MULTIPLIER: int = 2
 
     def __init__(self,
                  action: int,
-                 duration: float,  # hours
-                 weight: float,  # kilos
+                 duration: float,
+                 weight: float,
                  length_pool: int,
                  count_pool: int) -> None:
         super().__init__(action, duration, weight)
-        self.length_pool = length_pool  # metres, int?
-        self.count_pool = count_pool  # int
+        self.length_pool = length_pool
+        self.count_pool = count_pool
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
