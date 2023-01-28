@@ -15,6 +15,7 @@
     расход энергии в килокалориях.
 """
 from dataclasses import dataclass, asdict
+from typing import Dict, List, Type
 
 
 @dataclass
@@ -63,7 +64,8 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        raise NotImplementedError('Это метод родителя-Training; см у "детей."')
+        raise NotImplementedError('Базовый метод Training; см. реализацию у'
+                                  ' "детей".')
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -79,10 +81,6 @@ class Running(Training):
     Все свойства и методы этого класса без изменений наследуются от базового
     класса. Исключение составляет только метод расчёта калорий, его нужно
     переопределить.
-    Расход калорий для бега рассчитывается по такой формуле:
-
-    (18 * средняя_скорость + 1.79) * вес_спортсмена / M_IN_KM *
-    время_тренировки_в_минутах  # Yet the inherited duration is hours!
     """
 
     CALORIES_MEAN_SPEED_MULTIPLIER: int = 18
@@ -96,7 +94,12 @@ class Running(Training):
         super().__init__(action, duration, weight)
 
     def get_spent_calories(self) -> float:
-        """Получить количество затраченных калорий."""
+        """Получить количество затраченных калорий.
+        Расход калорий для бега рассчитывается по такой формуле:
+
+        (18 * средняя_скорость + 1.79) * вес_спортсмена / M_IN_KM *
+        время_тренировки_в_минутах  # Yet the inherited duration is hours!
+        """
         return (
             (self.CALORIES_MEAN_SPEED_MULTIPLIER
              * self.get_mean_speed() + self.CALORIES_MEAN_SPEED_SHIFT)
@@ -168,10 +171,10 @@ class Swimming(Training):
         )
 
 
-def read_package(workout_type: str, data: list[int]) -> Training:
+def read_package(workout_type: str, data: List[int]) -> Training:
     """Прочитать данные, полученные от датчиков."""
 
-    avail_workouts: dict = {
+    avail_workouts: Dict[str, Type[Training]] = {
         'RUN': Running,
         'WLK': SportsWalking,
         'SWM': Swimming,
@@ -181,7 +184,7 @@ def read_package(workout_type: str, data: list[int]) -> Training:
         return avail_workouts[workout_type](*data)
     except KeyError:
         raise NotImplementedError('Выбран неподдерживаемый режим тренировки'
-                                  f'{workout_type}')
+                                  f' {workout_type}')
 
 
 def main(training: Training) -> None:
