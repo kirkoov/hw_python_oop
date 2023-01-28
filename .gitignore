@@ -15,8 +15,6 @@ __pycache__/
 env/
 venv/
 
-
-
 # mypy
 .mypy_cache/
 .dmypy.json

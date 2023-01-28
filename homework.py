@@ -14,9 +14,8 @@
     среднюю скорость на дистанции в км/ч;
     расход энергии в килокалориях.
 """
+from dataclasses import asdict, dataclass
 from typing import Dict, List, Type
-
-from dataclasses import dataclass, asdict
 
 
 @dataclass
