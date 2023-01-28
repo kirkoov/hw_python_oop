@@ -14,8 +14,9 @@
     среднюю скорость на дистанции в км/ч;
     расход энергии в килокалориях.
 """
-from dataclasses import dataclass, asdict
 from typing import Dict, List, Type
+
+from dataclasses import dataclass, asdict
 
 
 @dataclass
@@ -79,19 +80,13 @@ class Training:
 class Running(Training):
     """Тренировка: бег.
     Все свойства и методы этого класса без изменений наследуются от базового
-    класса. Исключение составляет только метод расчёта калорий, его нужно
+    класса. Поэтому не нужно дублировать конструктор.
+    Исключение составляет только метод расчёта калорий, его нужно
     переопределить.
     """
 
     CALORIES_MEAN_SPEED_MULTIPLIER: int = 18
     CALORIES_MEAN_SPEED_SHIFT: float = 1.79
-
-    def __init__(self,
-                 action: int,
-                 duration: float,
-                 weight: float,
-                 ) -> None:
-        super().__init__(action, duration, weight)
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий.
@@ -174,17 +169,17 @@ class Swimming(Training):
 def read_package(workout_type: str, data: List[int]) -> Training:
     """Прочитать данные, полученные от датчиков."""
 
-    avail_workouts: Dict[str, Type[Training]] = {
+    available_workout_types: Dict[str, Type[Training]] = {
         'RUN': Running,
         'WLK': SportsWalking,
         'SWM': Swimming,
     }
 
-    try:
-        return avail_workouts[workout_type](*data)
-    except KeyError:
-        raise NotImplementedError('Выбран неподдерживаемый режим тренировки'
-                                  f' {workout_type}')
+    if workout_type in available_workout_types:
+        return available_workout_types[workout_type](*data)
+    else:
+        raise KeyError('Выбран неподдерживаемый режим тренировки –'
+                       f' {workout_type}')
 
 
 def main(training: Training) -> None:
